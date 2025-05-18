@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Takeover Infinity Toolkit - Control Panel</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #1a1a1a;
+            color: #00ff00;
+        }
+        h1, h3 {
+            text-align: center;
+            text-transform: uppercase;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+        .tools-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 15px;
+        }
+        .tool-card {
+            border: 1px solid #00ff00;
+            padding: 10px;
+            background-color: #2a2a2a;
+        }
+        button {
+            background-color: #00ff00;
+            color: black;
+            border: none;
+            padding: 8px 16px;
+            cursor: pointer;
+        }
+        button:hover {
+            background-color: #00cc00;
+        }
+        input[type="text"] {
+            padding: 8px;
+            width: 100%;
+            background-color: #333;
+            color: #fff;
+            border: 1px solid #00ff00;
+        }
+        pre {
+            background-color: #333;
+            padding: 10px;
+            overflow-x: auto;
+            border: 1px solid #00ff00;
+            min-height: 50px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Takeover Infinity Toolkit v3.0</h1>
+        <h3>Advanced Control Panel</h3>
+        
+        <div>
+            <h3>Select and Execute Tools</h3>
+            <label for="target">Target (URL/IP):</label>
+            <input type="text" id="target" placeholder="e.g., test.example.com">
+            <div class="tools-grid">
+                {% for tool in tools %}
+                <div class="tool-card">
+                    <strong>{{ tool }}</strong>
+                    <button onclick="runTool('{{ tool }}')">Execute on Target</button>
+                </div>
+                {% endfor %}
+            </div>
+            <h3>Operation Output</h3>
+            <pre id="output">Output will appear here...</pre>
+        </div>
+        
+        <div>
+            <h3>AI Phishing Generator</h3>
+            <input type="text" id="ai_prompt" placeholder="Enter phishing target or context">
+            <button onclick="generatePhishing()">Generate</button>
+            <pre id="ai_output">AI-generated content will appear here...</pre>
+        </div>
+        
+        <div>
+            <h3>Operation Logs</h3>
+            <button onclick="viewLogs()">Refresh Logs</button>
+            <pre id="logs">Logs will appear here...</pre>
+        </div>
+    </div>
+
+    <script>
+        async function runTool(toolName) {
+            const target = document.getElementById('target').value;
+            if (!target) {
+                alert('Please enter a target (URL or IP)');
+                return;
+            }
+            const response = await fetch('/run_tool', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({tool_name: toolName, target: target})
+            });
+            const result = await response.json();
+            document.getElementById('output').textContent = result.output || result.error;
+        }
+
+        async function generatePhishing() {
+            const prompt = document.getElementById('ai_prompt').value;
+            if (!prompt) {
+                alert('Please enter a prompt for AI');
+                return;
+            }
+            const response = await fetch('/ai_generate', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({prompt: prompt})
+            });
+            const result = await response.json();
+            document.getElementById('ai_output').textContent = result.response || result.error;
+        }
+
+        async function viewLogs() {
+            const response = await fetch('/view_logs');
+            const result = await response.json();
+            document.getElementById('logs').textContent = result.logs;
+        }
+    </script>
+</body>
+</html>
+
